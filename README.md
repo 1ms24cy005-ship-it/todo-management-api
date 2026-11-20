@@ -1,0 +1,96 @@
+# Todo Management REST API - DevOps Project
+
+A production-ready Spring Boot 3 REST API built with Java 17 and Maven for DevOps CI/CD pipeline implementation.
+
+## Project Overview
+
+- **Language:** Java 17
+- **Framework:** Spring Boot 3.2.5
+- **Build Tool:** Apache Maven
+- **Architecture:** Clean 3-tier architecture (Controller, Service, Model)
+- **Data Store:** In-memory thread-safe `ArrayList` (no database required)
+- **Test Framework:** JUnit 5, Spring Boot Test, MockMvc
+
+---
+
+## REST API Specification
+
+| HTTP Method | Endpoint | Description | Status Code | Sample Request / Response |
+|-------------|----------|-------------|-------------|---------------------------|
+| `GET` | `/todos` | Retrieve all todo items | `200 OK` | `[{"id":1,"title":"...","description":"...","completed":false}]` |
+| `POST` | `/todos` | Create a new todo item | `201 Created` / `400 Bad Request` | Body: `{"title":"Task","description":"Details","completed":false}` |
+| `GET` | `/todos/{id}` | Retrieve todo by ID | `200 OK` / `404 Not Found` | Returns single todo or error JSON |
+| `GET` | `/health` | Kubernetes Liveness/Readiness probe | `200 OK` | `{"status":"UP","service":"todo-management-api"}` |
+
+---
+
+## Prerequisites
+
+- **Java Development Kit (JDK):** Version 17
+- **Maven:** Version 3.8+
+
+Set up environment variables:
+```bash
+export PATH="/opt/homebrew/opt/openjdk@17/bin:/opt/homebrew/bin:$PATH"
+export JAVA_HOME="/opt/homebrew/opt/openjdk@17"
+```
+
+---
+
+## Build and Testing
+
+### 1. Run Automated JUnit Tests
+```bash
+mvn clean test
+```
+
+### 2. Package the Application into an Executable JAR
+```bash
+mvn clean package
+```
+The executable JAR is generated at:
+`target/todo-management-api-1.0.0.jar`
+
+### 3. Run the Application Locally
+```bash
+java -jar target/todo-management-api-1.0.0.jar
+```
+The server will start on port `8080`.
+
+---
+
+## Testing Endpoints with cURL
+
+### 1. Health Check (Kubernetes probe)
+```bash
+curl -i http://localhost:8080/health
+```
+
+### 2. Get All Todos
+```bash
+curl -i http://localhost:8080/todos
+```
+
+### 3. Add a New Todo
+```bash
+curl -i -X POST http://localhost:8080/todos \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Dockerize Application","description":"Build and test container image","completed":false}'
+```
+
+### 4. Get Todo by ID
+```bash
+curl -i http://localhost:8080/todos/1
+```
+
+### 5. Test Error Handling (Invalid Input - 400 Bad Request)
+```bash
+curl -i -X POST http://localhost:8080/todos \
+  -H "Content-Type: application/json" \
+  -d '{"title":"","description":"Missing title"}'
+```
+
+### 6. Test Error Handling (Non-existent ID - 404 Not Found)
+```bash
+curl -i http://localhost:8080/todos/999
+```
