@@ -95,3 +95,54 @@ curl -i -X POST http://localhost:8080/todos \
 ```bash
 curl -i http://localhost:8080/todos/999
 ```
+
+---
+
+## Jenkins Continuous Integration (CI) Pipeline
+
+The project includes a declarative [Jenkinsfile](Jenkinsfile) defining a complete 5-stage automated CI pipeline.
+
+### Pipeline Stages
+1. **Checkout:** Checks out source code from the configured Git branch (`main`).
+2. **Compile:** Runs `mvn compile` with Java 17.
+3. **Run Automated JUnit Tests:** Executes `mvn clean test` and tests all endpoints.
+4. **Package:** Builds the fat JAR (`mvn package -DskipTests=true`).
+5. **Archive Artifacts:** Archives `target/*.jar` using Jenkins `archiveArtifacts`.
+6. **Post-Actions:** Automatically parses and publishes JUnit test trends using `junit`.
+
+### Jenkins Installation on macOS (Homebrew)
+```bash
+# 1. Install Jenkins LTS
+brew install jenkins-lts
+
+# 2. Start Jenkins service
+brew services start jenkins-lts
+
+# 3. Access Jenkins UI
+# Open http://localhost:8080 in your browser
+# Initial admin password:
+cat ~/.jenkins/secrets/initialAdminPassword
+```
+
+### Configuring Jenkins Pipeline Job
+1. **Global Tool Configuration:**
+   - Go to **Manage Jenkins** → **Tools**.
+   - Under **JDK**, add JDK named `Java-17` (Path: `/opt/homebrew/opt/openjdk@17`).
+   - Under **Maven**, add Maven named `Maven-3` (Path: `/opt/homebrew`).
+2. **Create Pipeline Job:**
+   - Click **New Item** → Select **Pipeline** → Name: `todo-management-pipeline`.
+   - Under **Build Triggers**, check **GitHub hook trigger for GITScm polling**.
+   - Under **Pipeline Definition**, select **Pipeline script from SCM**.
+   - **SCM:** Select **Git**.
+   - **Repository URL:** Your GitHub repo URL (`https://github.com/<user>/todo-management-api.git`).
+   - **Branch Specifier:** `*/main`.
+   - **Script Path:** `Jenkinsfile`.
+   - Click **Save**.
+
+### Setting Up Automatic Builds on Git Push
+1. In your GitHub repository, navigate to **Settings** → **Webhooks** → **Add webhook**.
+2. **Payload URL:** `http://<your-jenkins-server-ip-or-ngrok>:8080/github-webhook/`
+3. **Content type:** `application/json`
+4. **Which events?** Select **Just the push event**.
+5. Save webhook. Every `git push` to `main` will now trigger an automated Jenkins build.
+
