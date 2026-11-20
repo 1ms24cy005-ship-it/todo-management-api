@@ -144,4 +144,15 @@ public class TodoControllerTest {
                 .andExpect(jsonPath("$.status", is("UP")))
                 .andExpect(jsonPath("$.service", is("todo-management-api")));
     }
+
+    @Test
+    @DisplayName("GET /todos/count - Should return current total todo count with HTTP 200")
+    void testGetTodoCount() throws Exception {
+        when(todoService.getTodoCount()).thenReturn(5);
+
+        mockMvc.perform(get("/todos/count")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.count", is(5)));
+    }
 }
