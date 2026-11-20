@@ -146,3 +146,63 @@ cat ~/.jenkins/secrets/initialAdminPassword
 4. **Which events?** Select **Just the push event**.
 5. Save webhook. Every `git push` to `main` will now trigger an automated Jenkins build.
 
+---
+
+## Ansible Configuration Management
+
+The project provides modular, idempotent Ansible automation under [`ansible/`](ansible/) to configure target Linux hosts, install OpenJDK 17, deploy the application JAR, configure a systemd service, and manage lifecycle events.
+
+### Directory Structure
+```text
+ansible/
+├── inventory.ini             # Inventory defining target Linux hosts
+├── playbook.yml              # Main playbook orchestrating the todo_app role
+└── roles/
+    └── todo_app/
+        ├── defaults/main.yml # Default variables (port, user, directory, package)
+        ├── vars/main.yml     # Role variables (local JAR source, service description)
+        ├── tasks/main.yml    # Idempotent tasks (JDK 17, user, directory, copy, systemd)
+        ├── handlers/main.yml # Handlers for daemon reload and service restart
+        └── templates/
+            └── todo-app.service.j2 # Jinja2 systemd unit configuration template
+```
+
+### Role Variables & Handlers
+- **Variables:**
+  - `app_port`: Application HTTP port (default: `8080`).
+  - `app_user` / `app_group`: Dedicated system service account (`todoapp`).
+  - `app_dir`: Application deployment directory (`/opt/todo-app`).
+  - `local_jar_source`: Relative path to packaged JAR (`../target/todo-management-api-1.0.0.jar`).
+- **Handlers:**
+  - `reload systemd`: Triggers `systemctl daemon-reload` whenever the unit file changes.
+  - `restart todo-app`: Restarts the service whenever the JAR artifact or service definition is updated.
+
+### Running Ansible Playbook Against Linux Target
+
+> **Note for macOS:** macOS uses `launchd` instead of Linux `systemd`. Ansible systemd modules must be targeted at a Linux machine (e.g. an Ubuntu/Debian VM, EC2 instance, Multipass VM, or a systemd-enabled Docker container).
+
+1. **Verify Playbook Syntax:**
+   ```bash
+   ansible-playbook -i ansible/inventory.ini ansible/playbook.yml --syntax-check
+   ```
+
+2. **Dry Run (Check Mode):**
+   ```bash
+   ansible-playbook -i ansible/inventory.ini ansible/playbook.yml --check
+   ```
+
+3. **Execute Deployment Playbook:**
+   ```bash
+   ansible-playbook -i ansible/inventory.ini ansible/playbook.yml
+   ```
+
+4. **Verify Service on Target Host:**
+   ```bash
+   # Check systemd service status
+   systemctl status todo-app
+
+   # Check live health endpoint
+   curl -i http://localhost:8080/health
+   ```
+
+

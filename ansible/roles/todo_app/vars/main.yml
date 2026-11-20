@@ -1,0 +1,7 @@
+---
+# Role variables for todo_app role
+local_jar_source: "../target/{{ app_jar_name }}"
+service_description: "Todo Management REST API Spring Boot Application"
+app_environment_vars:
+  SPRING_PROFILES_ACTIVE: "prod"
+  SERVER_PORT: "{{ app_port }}"

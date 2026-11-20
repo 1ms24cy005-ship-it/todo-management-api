@@ -1,0 +1,81 @@
+---
+# Tasks for todo_app role
+
+- name: Update apt cache (Debian / Ubuntu)
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  when: ansible_os_family == "Debian"
+
+- name: Install OpenJDK 17 (Debian / Ubuntu)
+  ansible.builtin.apt:
+    name: "{{ java_package_debian }}"
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Install OpenJDK 17 (RedHat / CentOS / Fedora)
+  ansible.builtin.dnf:
+    name: "{{ java_package_redhat }}"
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Create application group
+  ansible.builtin.group:
+    name: "{{ app_group }}"
+    state: present
+    system: true
+
+- name: Create application system user
+  ansible.builtin.user:
+    name: "{{ app_user }}"
+    group: "{{ app_group }}"
+    system: true
+    shell: /usr/sbin/nologin
+    create_home: false
+    state: present
+
+- name: Create application directory
+  ansible.builtin.file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: '0755'
+
+- name: Copy application executable JAR
+  ansible.builtin.copy:
+    src: "{{ local_jar_source }}"
+    dest: "{{ app_dir }}/{{ app_jar_name }}"
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: '0644'
+  notify: restart todo-app
+
+- name: Deploy systemd service configuration from template
+  ansible.builtin.template:
+    src: todo-app.service.j2
+    dest: "/etc/systemd/system/{{ app_service_name }}.service"
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - reload systemd
+    - restart todo-app
+
+- name: Flush handlers to apply systemd changes before ensuring service state
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable and start todo-app service
+  ansible.builtin.systemd:
+    name: "{{ app_service_name }}"
+    state: started
+    enabled: true
+
+- name: Verify application health endpoint is responding
+  ansible.builtin.uri:
+    url: "http://localhost:{{ app_port }}/health"
+    status_code: 200
+  register: health_result
+  until: health_result.status == 200
+  retries: 10
+  delay: 3

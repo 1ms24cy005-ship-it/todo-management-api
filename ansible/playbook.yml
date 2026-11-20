@@ -1,0 +1,9 @@
+---
+# Ansible Playbook for Todo Management REST API Deployment
+- name: Deploy Todo Management REST API to Linux Target
+  hosts: app_servers
+  become: true
+  gather_facts: true
+
+  roles:
+    - role: todo_app
