@@ -53,6 +53,17 @@ public class TodoController {
     }
 
     /**
+     * GET /todos/count - Retrieve the count of current todos.
+     * HTTP Status: 200 OK
+     */
+    @GetMapping("/todos/count")
+    public ResponseEntity<Map<String, Object>> getTodoCount() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("count", todoService.getTodoCount());
+        return ResponseEntity.ok(response);
+    }
+
+    /**
      * GET /todos/{id} - Retrieve a specific todo item by ID.
      * HTTP Status: 200 OK (if found), 404 Not Found (if ID does not exist)
      */
@@ -81,16 +92,5 @@ public class TodoController {
         health.put("service", "todo-management-api");
         health.put("timestamp", System.currentTimeMillis());
         return ResponseEntity.ok(health);
-    }
-
-    /**
-     * GET /todos/count - Retrieve the count of current todos.
-     * HTTP Status: 200 OK
-     */
-    @GetMapping("/todos/count")
-    public ResponseEntity<Map<String, Object>> getTodoCount() {
-        Map<String, Object> response = new HashMap<>();
-        response.put("count", todoService.getTodoCount());
-        return ResponseEntity.ok(response);
     }
 }

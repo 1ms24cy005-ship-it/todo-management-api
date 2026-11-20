@@ -205,4 +205,55 @@ ansible/
    curl -i http://localhost:8080/health
    ```
 
+---
+
+## Docker Containerization
+
+The project is packaged into a secure, production-grade container image using [Dockerfile](Dockerfile) and [.dockerignore](.dockerignore).
+
+### Docker Image Design
+- **Base Image:** `eclipse-temurin:17-jre-jammy` (Multi-arch support: `linux/arm64` and `linux/amd64`).
+- **Security:** Runs as an unprivileged non-root system user (`appuser:appgroup`).
+- **Healthcheck:** Automated health checks querying `http://localhost:8080/health`.
+- **Artifact:** Self-contained executable JAR (`todo-management-api-1.0.0.jar`).
+
+### Building and Running the Docker Container
+
+1. **Build Docker Image:**
+   ```bash
+   docker build -t todo-management-api:latest .
+   ```
+
+2. **Run Container (Background Mode):**
+   ```bash
+   docker run -d --name todo-api -p 8080:8080 todo-management-api:latest
+   ```
+
+3. **Check Container Status and Logs:**
+   ```bash
+   docker ps -a --filter name=todo-api
+   docker logs todo-api
+   ```
+
+4. **Verify Containerized REST API:**
+   ```bash
+   # Health check
+   curl -i http://localhost:8080/health
+
+   # Get all todos
+   curl -i http://localhost:8080/todos
+
+   # Create new todo
+   curl -i -X POST http://localhost:8080/todos \
+     -H "Content-Type: application/json" \
+     -d '{"title":"Dockerize Todo API","description":"Running inside Docker container","completed":true}'
+   ```
+
+5. **Stop and Remove Container:**
+   ```bash
+   docker stop todo-api
+   docker rm todo-api
+   ```
+
+
 

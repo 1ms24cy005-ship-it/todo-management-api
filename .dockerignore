@@ -1,0 +1,22 @@
+# Version control and IDE
+.git
+.gitignore
+.idea
+.vscode
+*.iml
+*.log
+
+# Documentation and CI/CD
+Jenkinsfile
+ansible/
+k8s/
+README.md
+
+# Source and intermediate build files (only target/todo-management-api-1.0.0.jar is needed)
+src/
+target/classes/
+target/generated-sources/
+target/maven-status/
+target/surefire-reports/
+target/test-classes/
+target/*.jar.original
