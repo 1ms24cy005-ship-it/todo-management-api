@@ -65,4 +65,14 @@ public class TodoService {
         todos.add(todo);
         return todo;
     }
+
+    /**
+     * Retrieve total count of todos.
+     * @return current number of todos in the in-memory list
+     */
+    public int getTodoCount() {
+        synchronized (todos) {
+            return todos.size();
+        }
+    }
 }

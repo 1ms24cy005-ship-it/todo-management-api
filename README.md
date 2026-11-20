@@ -20,6 +20,7 @@ A production-ready Spring Boot 3 REST API built with Java 17 and Maven for DevOp
 | `GET` | `/todos` | Retrieve all todo items | `200 OK` | `[{"id":1,"title":"...","description":"...","completed":false}]` |
 | `POST` | `/todos` | Create a new todo item | `201 Created` / `400 Bad Request` | Body: `{"title":"Task","description":"Details","completed":false}` |
 | `GET` | `/todos/{id}` | Retrieve todo by ID | `200 OK` / `404 Not Found` | Returns single todo or error JSON |
+| `GET` | `/todos/count` | Retrieve total count of todos | `200 OK` | `{"count":3}` |
 | `GET` | `/health` | Kubernetes Liveness/Readiness probe | `200 OK` | `{"status":"UP","service":"todo-management-api"}` |
 
 ---

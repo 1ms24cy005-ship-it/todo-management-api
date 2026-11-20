@@ -82,4 +82,15 @@ public class TodoController {
         health.put("timestamp", System.currentTimeMillis());
         return ResponseEntity.ok(health);
     }
+
+    /**
+     * GET /todos/count - Retrieve the count of current todos.
+     * HTTP Status: 200 OK
+     */
+    @GetMapping("/todos/count")
+    public ResponseEntity<Map<String, Object>> getTodoCount() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("count", todoService.getTodoCount());
+        return ResponseEntity.ok(response);
+    }
 }
