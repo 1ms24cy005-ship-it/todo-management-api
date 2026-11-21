@@ -5,6 +5,6 @@ app_group: todoapp
 app_dir: /opt/todo-app
 app_jar_name: todo-management-api-1.0.0.jar
 app_service_name: todo-app
-app_port: 8080
+app_port: 8090
 java_package_debian: openjdk-17-jre-headless
 java_package_redhat: java-17-openjdk

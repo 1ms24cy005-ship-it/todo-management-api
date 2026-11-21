@@ -7,6 +7,13 @@
     cache_valid_time: 3600
   when: ansible_os_family == "Debian"
 
+- name: Ensure man1 directory exists for update-alternatives (Debian / Ubuntu)
+  ansible.builtin.file:
+    path: /usr/share/man/man1
+    state: directory
+    mode: '0755'
+  when: ansible_os_family == "Debian"
+
 - name: Install OpenJDK 17 (Debian / Ubuntu)
   ansible.builtin.apt:
     name: "{{ java_package_debian }}"
