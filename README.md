@@ -255,5 +255,66 @@ The project is packaged into a secure, production-grade container image using [D
    docker rm todo-api
    ```
 
+---
+
+## Kubernetes Deployment using Minikube
+
+The application is deployed to Kubernetes with high availability, automated scaling, and health probes under [`k8s/`](k8s/).
+
+### Manifest Files
+- **[`k8s/deployment.yaml`](k8s/deployment.yaml):**
+  - **Replicas:** Configured with `replicas: 3` (scalable to 5).
+  - **Container Port:** `8080`.
+  - **Image:** `todo-management-api:latest` (`imagePullPolicy: IfNotPresent`).
+  - **Liveness Probe:** `httpGet: /health` (delay: 20s, period: 10s).
+  - **Readiness Probe:** `httpGet: /health` (delay: 15s, period: 5s).
+- **[`k8s/service.yaml`](k8s/service.yaml):**
+  - **Type:** `NodePort` (port: 8080, targetPort: 8080, nodePort: 30080).
+
+### Deployment and Scaling Commands
+
+1. **Start Minikube with Docker Driver:**
+   ```bash
+   minikube start --driver=docker
+   ```
+
+2. **Load Docker Image into Minikube:**
+   ```bash
+   minikube image load todo-management-api:latest
+   ```
+
+3. **Deploy Application to Cluster:**
+   ```bash
+   kubectl apply -f k8s/
+   kubectl rollout status deployment/todo-app-deployment
+   ```
+
+4. **Verify Running Pods and Service:**
+   ```bash
+   kubectl get deployments
+   kubectl get pods -l app=todo-app -o wide
+   kubectl get services todo-app-service
+   ```
+
+5. **Access Application via NodePort Service:**
+   ```bash
+   minikube service todo-app-service --url
+   curl -i http://<service-url>/health
+   ```
+
+6. **Demonstrate Horizontal Scaling (3 -> 5 -> 3):**
+   ```bash
+   # Scale to 5 replicas
+   kubectl scale deployment/todo-app-deployment --replicas=5
+   kubectl get pods -l app=todo-app
+
+   # Scale back to 3 replicas
+   kubectl scale deployment/todo-app-deployment --replicas=3
+   kubectl get pods -l app=todo-app
+   ```
+
+Complete terminal execution logs and evidence are available in [evidence/KUBERNETES_EXECUTION_EVIDENCE.md](evidence/KUBERNETES_EXECUTION_EVIDENCE.md).
+
+
 
 
