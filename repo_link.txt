@@ -1,1 +1,1 @@
-https://github.com/1ms24cy005-ship-it/todo-management-api.git
+https://github.com/1ms24cy005-ship-it/todo-management-api
